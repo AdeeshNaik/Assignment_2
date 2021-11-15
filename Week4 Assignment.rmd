@@ -1,0 +1,79 @@
+---
+title: "Airline Safety"
+author: Adeesh Naik
+date: November 14th, 2021
+output: html_document
+---
+
+The dataset contains information regarding incidents and accidents for various airlines. For each of the airlines we have the following information:
+1.Flown kilometers for all seats per week
+2.Number of incidents between 1985 - 1999 & 2000 - 2014
+2.Number of fatal accidents between 1985 - 1999 & 2000 - 2014
+2.Number of fatalities between 1985 - 1999 & 2000 - 2014
+
+The data is stored as comma delimited file in the url : https://github.com/fivethirtyeight/data/blob/master/airline-safety/airline-safety.csv
+
+```{r setup, echo=FALSE, include=FALSE}
+
+library(tidyverse)
+library(knitr)
+library(dplyr)
+
+```
+
+
+``` {r ReadingData, echo = TRUE}
+#Read the data into data frame using function "read_csv" from package "tidyverse"
+
+airline_safety <- read_csv("https://raw.githubusercontent.com/fivethirtyeight/data/master/airline-safety/airline-safety.csv")
+```
+
+``` {r cleanup, echo = TRUE}
+#renaming the airlines & Km flown columns
+
+names(airline_safety)[names(airline_safety) == 'airline'] <- 'Air_Carriers'
+names(airline_safety)[names(airline_safety) == 'avail_seat_km_per_week'] <- 'Km_Flown_All_Seats'
+
+```
+
+This dataframe has `r nrow(airline_safety)` rows and `r ncol(airline_safety)` columns. The names of the columns and a brief description of each are in the table below :
+
+
+``` {r Header Description, echo = TRUE}
+description <- c('Airline (asterisk indicates that regional subsidiaries are included)','	Available seat kilometers flown every week','Total number of incidents, 1985–1999','otal number of fatal accidents, 1985–1999','Total number of fatalities, 1985–1999','Total number of incidents, 2000–2014','Total number of fatal accidents, 2000–2014','Total number of fatalities, 2000–2014')
+
+description_table <- data.frame(names(airline_safety), description)
+
+kable(description_table, "pipe", col.names = NULL)
+```
+
+
+```{r Summary, echo=TRUE}
+data_subset <- subset(airline_safety, select=c(names(airline_safety)[2], names(airline_safety)[5], names(airline_safety)[8]))
+
+#data_subset %>%
+summary <- summarize(data_subset,
+          Min_Km = min(data_subset[1]),
+          Min_Fatal_85_99 = min(data_subset[2]),
+          Min_Fatal_00_14 = min(data_subset[3]),
+          
+          Max_Km = max(data_subset[1]),
+          Max_Fatal_85_99 = max(data_subset[2]),
+          Max_Fatal_00_14 = max(data_subset[3]),
+          
+          Mean_Km = mean.default(data_subset$Km_Flown_All_Seats),
+          Mean_Fatal_85_99 = mean.default(data_subset$fatalities_85_99),
+          Mean_Fatal_00_14 = mean.default(data_subset$fatalities_00_14),
+          
+          NA_Count_KM = sum(is.na(data_subset$Km_Flown_All_Seats)) ,
+          NA_Fatal_85_99 = sum(is.na(data_subset$fatalities_85_99)) ,
+          NA_Fatal_00_14 = sum(is.na(data_subset$fatalities_00_14)) ,
+          
+          )
+
+summary.transposed = transpose(summary)
+head(summary.transposed)
+
+```
+
+
